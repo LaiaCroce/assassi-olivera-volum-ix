@@ -17,106 +17,169 @@ type Props = {
 };
 
 export default function AdminPlayers({ initialPlayers }: Props) {
-  const [players, setPlayers] = useState(initialPlayers);
+    const [players, setPlayers] = useState(initialPlayers);
+    const [confirmAction, setConfirmAction] = useState<{
+        player: Player;
+        type: "paid" | "alive";
+    } | null>(null);
 
-  async function togglePaid(player: Player) {
-    const newValue = !player.has_paid;
+    async function togglePaid(player: Player) {
+        const newValue = !player.has_paid;
 
-    const { error } = await supabase
-      .from("players")
-      .update({ has_paid: newValue })
-      .eq("id", player.id);
+        const { error } = await supabase
+            .from("players")
+            .update({ has_paid: newValue })
+            .eq("id", player.id);
 
-    if (error) return;
+        if (error) return;
+
+        setPlayers((prev) =>
+        prev.map((p) =>
+            p.id === player.id ? { ...p, has_paid: newValue } : p
+        )
+        );
+    }
+
+    async function toggleAlive(player: Player) {
+        const newValue = !player.is_alive;
+
+        const { error } = await supabase
+            .from("players")
+            .update({ is_alive: newValue })
+            .eq("id", player.id);
+
+        if (error) return;
 
     setPlayers((prev) =>
-      prev.map((p) =>
-        p.id === player.id ? { ...p, has_paid: newValue } : p
-      )
+        prev.map((p) =>
+            p.id === player.id ? { ...p, is_alive: newValue } : p
+        )
     );
-  }
+    }
 
-  async function toggleAlive(player: Player) {
-    const newValue = !player.is_alive;
+    return (
+        <div className="border border-stone-700 rounded-2xl p-6">
+        <h2 className="text-2xl font-black mb-4">Jugadors</h2>
 
-    const { error } = await supabase
-      .from("players")
-      .update({ is_alive: newValue })
-      .eq("id", player.id);
-
-    if (error) return;
-
-    setPlayers((prev) =>
-      prev.map((p) =>
-        p.id === player.id ? { ...p, is_alive: newValue } : p
-      )
-    );
-  }
-
-  return (
-    <div className="border border-stone-700 rounded-2xl p-6">
-      <h2 className="text-2xl font-black mb-4">Jugadors</h2>
-
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-stone-500">
-            <tr className="border-b border-stone-800">
-              <th className="text-left py-3">ID</th>
-              <th className="text-left py-3">Nom</th>
-              <th className="text-left py-3">Estat</th>
-              <th className="text-left py-3">Pagat</th>
-              <th className="text-left py-3">Objectiu</th>
-              <th className="text-left py-3">Accions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {players.map((player) => {
-              const target = players.find(
-                (p) => p.id === player.current_target_id
-              );
-
-              return (
-                <tr key={player.id} className="border-b border-stone-900">
-                  <td className="py-3 text-stone-500">
-                    {player.player_code}
-                  </td>
-
-                  <td className="py-3">{player.name}</td>
-
-                  <td className="py-3">
-                    {player.is_alive ? "VIU" : "MORT"}
-                  </td>
-
-                  <td className="py-3">
-                    {player.has_paid ? "Sí" : "No"}
-                  </td>
-
-                  <td className="py-3 text-stone-400">
-                    {target ? target.name : "—"}
-                  </td>
-
-                  <td className="py-3 flex gap-2">
-                    <button
-                      onClick={() => togglePaid(player)}
-                      className="rounded-lg border border-stone-700 px-3 py-2 text-xs"
-                    >
-                      {player.has_paid ? "No pagat" : "Pagat"}
-                    </button>
-
-                    <button
-                      onClick={() => toggleAlive(player)}
-                      className="rounded-lg border border-red-900 px-3 py-2 text-xs text-red-500"
-                    >
-                      {player.is_alive ? "Matar" : "Reviure"}
-                    </button>
-                  </td>
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+            <thead className="text-stone-500">
+                <tr className="border-b border-stone-800">
+                <th className="text-left py-3">ID</th>
+                <th className="text-left py-3">Nom</th>
+                <th className="text-left py-3">Estat</th>
+                <th className="text-left py-3">Pagat</th>
+                <th className="text-left py-3">Objectiu</th>
+                <th className="text-left py-3">Accions</th>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+            </thead>
+
+            <tbody>
+                {players.map((player) => {
+                const target = players.find(
+                    (p) => p.id === player.current_target_id
+                );
+
+                return (
+                    <tr key={player.id} className="border-b border-stone-900">
+                    <td className="py-3 text-stone-500">
+                        {player.player_code}
+                    </td>
+
+                    <td className="py-3">{player.name}</td>
+
+                    <td className="py-3">
+                        {player.is_alive ? "VIU" : "MORT"}
+                    </td>
+
+                    <td className="py-3">
+                        {player.has_paid ? "Sí" : "No"}
+                    </td>
+
+                    <td className="py-3 text-stone-400">
+                        {target ? target.name : "—"}
+                    </td>
+
+                    <td className="py-3 flex gap-2">
+                        <button
+                        onClick={() =>
+                            setConfirmAction({
+                                player,
+                                type: "paid",
+                            })
+                        }
+                        className="rounded-lg border border-stone-700 px-3 py-2 text-xs"
+                        >
+                        {player.has_paid ? "No pagat" : "Pagat"}
+                        </button>
+
+                        <button
+                        onClick={() =>
+                            setConfirmAction({
+                                player,
+                                type: "alive",
+                            })
+                        }
+                        className="rounded-lg border border-red-900 px-3 py-2 text-xs text-red-500"
+                        >
+                        {player.is_alive ? "Matar" : "Reviure"}
+                        </button>
+                    </td>
+                    </tr>
+                );
+                })}
+            </tbody>
+            </table>
+            {confirmAction && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+                    <div className="w-full max-w-md mx-4 border border-red-900 bg-[#090909] rounded-2xl p-6">
+
+                    <h3 className="text-2xl font-black text-red-500">
+                        ⚠️ Confirmar acció
+                    </h3>
+
+                    <p className="mt-4 text-stone-300">
+                        {confirmAction.type === "alive"
+                        ? `Vols ${
+                            confirmAction.player.is_alive ? "matar" : "reviure"
+                            } ${confirmAction.player.name}?`
+                        : `Vols marcar ${
+                            confirmAction.player.name
+                            } com ${
+                            confirmAction.player.has_paid ? "NO PAGAT" : "PAGAT"
+                            }?`}
+                    </p>
+
+                    <div className="flex gap-3 mt-6">
+                        <button
+                        onClick={() => setConfirmAction(null)}
+                        className="flex-1 rounded-xl border border-stone-700 py-3"
+                        >
+                        CANCEL·LAR
+                        </button>
+
+                        <button
+                        onClick={async () => {
+                            if (confirmAction.type === "paid") {
+                            await togglePaid(confirmAction.player);
+                            }
+
+                            if (confirmAction.type === "alive") {
+                            await toggleAlive(confirmAction.player);
+                            }
+
+                            setConfirmAction(null);
+                        }}
+                        className="flex-1 rounded-xl bg-red-950 border border-red-900 py-3 font-bold"
+                        >
+                        CONFIRMAR
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                )}
+        </div>
+        </div>
+    );
 }
+

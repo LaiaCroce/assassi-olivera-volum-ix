@@ -8,16 +8,15 @@ type Props = {
 };
 
 export default function AdminRules({ currentRule }: Props) {
-  const [rule, setRule] = useState(currentRule);
-  const [newRule, setNewRule] = useState("");
-  const [message, setMessage] = useState("");
+    const [rule, setRule] = useState(currentRule);
+    const [newRule, setNewRule] = useState("");
+    const [message, setMessage] = useState("");
+    const [showConfirm, setShowConfirm] = useState(false);
 
-  async function updateRule(e: React.FormEvent) {
-    e.preventDefault();
+    async function updateRule() {
+      if (!newRule.trim()) return;
 
-    if (!newRule.trim()) return;
-
-    setMessage("");
+      setMessage("");
 
     await supabase
       .from("rules")
@@ -47,7 +46,11 @@ export default function AdminRules({ currentRule }: Props) {
         {rule || "Sense consigna activa"}
       </p>
 
-      <form onSubmit={updateRule} className="mt-6 space-y-4">
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        if (!newRule.trim()) return;
+        setShowConfirm(true);
+        }} className="mt-6 space-y-4">
         <input
           value={newRule}
           onChange={(e) => setNewRule(e.target.value)}
@@ -67,6 +70,42 @@ export default function AdminRules({ currentRule }: Props) {
         <p className="mt-4 text-sm text-stone-400">
           {message}
         </p>
+      )}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+          <div className="w-full max-w-md mx-4 border border-red-900 bg-[#090909] rounded-2xl p-6">
+            <h3 className="text-2xl font-black text-red-500">
+              ⚠️ Confirmar consigna
+            </h3>
+
+            <p className="mt-4 text-stone-300">
+              Vols actualitzar la consigna a:
+            </p>
+
+            <p className="mt-3 text-xl font-bold text-red-600">
+              {newRule}
+            </p>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="flex-1 rounded-xl border border-stone-700 py-3"
+              >
+                CANCEL·LAR
+              </button>
+
+              <button
+                onClick={async () => {
+                  setShowConfirm(false);
+                  await updateRule();
+                }}
+                className="flex-1 rounded-xl bg-red-950 border border-red-900 py-3 font-bold"
+              >
+                CONFIRMAR
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
