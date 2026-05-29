@@ -32,10 +32,12 @@ export default function PlayerPage() {
   const [loadingKill, setLoadingKill] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingKill, setPendingKill] = useState<PendingKill | null>(null);
+  const [killCount, setKillCount] = useState(0);
 
   useEffect(() => {
     async function loadData() {
       const playerId = localStorage.getItem("player_id");
+      
 
       if (!playerId) {
         window.location.href = "/login";
@@ -64,6 +66,17 @@ export default function PlayerPage() {
         .maybeSingle();
 
       setPendingKill(pendingKillData);
+
+      const { count } = await supabase
+        .from("kills")
+        .select("*", {
+          count: "exact",
+          head: true,
+        })
+        .eq("killer_id", playerData.id)
+        .eq("status", "confirmed");
+
+      setKillCount(count ?? 0);
 
       if (playerData.current_target_id) {
         const { data: targetData } = await supabase
@@ -275,6 +288,14 @@ export default function PlayerPage() {
         <div className="border border-stone-700 rounded-2xl p-6">
           <p className="text-stone-500">PROTECCIÓ ACTIVA</p>
           <p className="text-xl mt-2 text-red-600">{rule}</p>
+        </div>
+
+        <div className="border border-stone-700 rounded-2xl p-6">
+          <p className="text-stone-500">RECOMPTE DE MORTS</p>
+
+          <p className="text-3xl font-black mt-2 text-red-600">
+            {killCount}
+          </p>
         </div>
 
         {!showConfirmation ? (
