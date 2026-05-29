@@ -24,6 +24,17 @@ type PendingKill = {
   status: string;
 };
 
+type KillHistoryItem = {
+  id: string;
+  victim_id: string;
+  players: 
+  |{
+    name: string;
+    player_code: string;
+    } []
+  | null;
+};
+
 export default function PlayerPage() {
   const [player, setPlayer] = useState<Player | null>(null);
   const [target, setTarget] = useState<Target | null>(null);
@@ -33,11 +44,11 @@ export default function PlayerPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingKill, setPendingKill] = useState<PendingKill | null>(null);
   const [killCount, setKillCount] = useState(0);
+  const [killHistory, setKillHistory] = useState<KillHistoryItem[]>([]);
 
   useEffect(() => {
     async function loadData() {
       const playerId = localStorage.getItem("player_id");
-      
 
       if (!playerId) {
         window.location.href = "/login";
@@ -69,14 +80,20 @@ export default function PlayerPage() {
 
       const { count } = await supabase
         .from("kills")
-        .select("*", {
-          count: "exact",
-          head: true,
-        })
+        .select("*", { count: "exact", head: true })
         .eq("killer_id", playerData.id)
         .eq("status", "confirmed");
 
       setKillCount(count ?? 0);
+
+      const { data: killHistoryData } = await supabase
+        .from("kills")
+        .select("id, victim_id, players:victim_id (name, player_code)")
+        .eq("killer_id", playerData.id)
+        .eq("status", "confirmed")
+        .order("created_at", { ascending: false });
+
+      setKillHistory((killHistoryData as KillHistoryItem[]) ?? []);
 
       if (playerData.current_target_id) {
         const { data: targetData } = await supabase
@@ -125,61 +142,55 @@ export default function PlayerPage() {
   }
 
   async function confirmDeath() {
-  if (!player || !pendingKill) return;
+    if (!player || !pendingKill) return;
 
-  setMessage("");
+    setMessage("");
 
-  const { data: victimData } = await supabase
-    .from("players")
-    .select("current_target_id")
-    .eq("id", player.id)
-    .maybeSingle();
+    const { data: victimData } = await supabase
+      .from("players")
+      .select("current_target_id")
+      .eq("id", player.id)
+      .maybeSingle();
 
-  const { error: killError } = await supabase
-    .from("kills")
-    .update({
-      status: "confirmed",
-      confirmed_at: new Date().toISOString(),
-    })
-    .eq("id", pendingKill.id);
+    const { error: killError } = await supabase
+      .from("kills")
+      .update({
+        status: "confirmed",
+        confirmed_at: new Date().toISOString(),
+      })
+      .eq("id", pendingKill.id);
 
-  if (killError) {
-    setMessage("No s'ha pogut confirmar l'eliminació.");
-    return;
+    if (killError) {
+      setMessage("No s'ha pogut confirmar l'eliminació.");
+      return;
+    }
+
+    const { error: victimError } = await supabase
+      .from("players")
+      .update({ is_alive: false })
+      .eq("id", player.id);
+
+    if (victimError) {
+      setMessage("S'ha confirmat la mort, però no s'ha pogut actualitzar la víctima.");
+      return;
+    }
+
+    const { error: killerError } = await supabase
+      .from("players")
+      .update({
+        current_target_id: victimData?.current_target_id,
+      })
+      .eq("id", pendingKill.killer_id);
+
+    if (killerError) {
+      setMessage("La víctima ha mort, però no s'ha pogut actualitzar el nou objectiu.");
+      return;
+    }
+
+    setPendingKill(null);
+    setPlayer({ ...player, is_alive: false });
+    setMessage("Has confirmat la teva eliminació.");
   }
-
-  const { error: victimError } = await supabase
-    .from("players")
-    .update({
-      is_alive: false,
-    })
-    .eq("id", player.id);
-
-  if (victimError) {
-    setMessage("S'ha confirmat la mort, però no s'ha pogut actualitzar la víctima.");
-    return;
-  }
-
-  const { error: killerError } = await supabase
-    .from("players")
-    .update({
-      current_target_id: victimData?.current_target_id,
-    })
-    .eq("id", pendingKill.killer_id);
-
-  if (killerError) {
-    setMessage("La víctima ha mort, però no s'ha pogut actualitzar el nou objectiu.");
-    return;
-  }
-
-  setPendingKill(null);
-  setPlayer({
-    ...player,
-    is_alive: false,
-  });
-
-  setMessage("Has confirmat la teva eliminació.");
-}
 
   async function rejectDeath() {
     if (!pendingKill) return;
@@ -188,9 +199,7 @@ export default function PlayerPage() {
 
     const { error } = await supabase
       .from("kills")
-      .update({
-        status: "rejected",
-      })
+      .update({ status: "rejected" })
       .eq("id", pendingKill.id);
 
     if (error) {
@@ -210,7 +219,35 @@ export default function PlayerPage() {
     );
   }
 
-  if (pendingKill && player.is_alive) {
+  if (!player.is_alive) {
+    return (
+      <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10 flex items-center justify-center">
+        <section className="max-w-md w-full space-y-6 text-center">
+          <p className="text-red-700 tracking-[0.25em] text-xs">
+            L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
+          </p>
+
+          <div className="border border-red-900 rounded-2xl p-8">
+            <h1 className="text-5xl font-black text-red-600">HAS CAIGUT</h1>
+
+            <p className="mt-6 text-stone-400">La teva missió ha acabat.</p>
+            <p className="mt-2 text-stone-400">Però la teva llegenda continua.</p>
+          </div>
+
+          <div className="border border-stone-700 rounded-2xl p-6 text-left">
+            <p className="text-stone-500">⚔️ ELIMINACIONS</p>
+            <p className="text-4xl font-black mt-2 text-red-600">{killCount}</p>
+          </div>
+
+          <p className="text-sm text-stone-500">
+            Encara pots participar a La Darrera Crònica i Ull de Falcó.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  if (pendingKill) {
     return (
       <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10 flex items-center justify-center">
         <section className="max-w-md w-full space-y-6 text-center">
@@ -268,15 +305,13 @@ export default function PlayerPage() {
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">ESTAT</p>
-          <p className="text-3xl font-black mt-2">
-            {player.is_alive ? "VIU" : "MORT"}
-          </p>
+          <p className="text-stone-500">🥷 ESTAT</p>
+          <p className="text-3xl font-black mt-2">VIU</p>
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">OBJECTIU ACTUAL</p>
-          <p className="text-3xl font-black mt-2">
+          <p className="text-stone-500">🎯 OBJECTIU ACTUAL</p>
+          <p className="text-5xl font-black mt-2">
             {target ? target.name : "Encara no assignat"}
           </p>
 
@@ -286,16 +321,37 @@ export default function PlayerPage() {
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">PROTECCIÓ ACTIVA</p>
+          <p className="text-stone-500">🛡️ PROTECCIÓ ACTIVA</p>
           <p className="text-xl mt-2 text-red-600">{rule}</p>
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">RECOMPTE DE MORTS</p>
+          <p className="text-stone-500">⚔️ RECOMPTE DE MORTS</p>
+          <p className="text-3xl font-black mt-2 text-red-600">{killCount}</p>
+        </div>
 
-          <p className="text-3xl font-black mt-2 text-red-600">
-            {killCount}
-          </p>
+        <div className="border border-stone-700 rounded-2xl p-6">
+          <p className="text-stone-500">📜 HISTORIAL DE MORTS</p>
+
+          {killHistory.length === 0 ? (
+            <p className="mt-2 text-stone-500">
+              Encara no has eliminat ningú.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-2">
+              {killHistory.map((kill) => (
+                <div
+                  key={kill.id}
+                  className="flex justify-between border-b border-stone-800 pb-2"
+                >
+                  <span>{kill.players?.[0]?.name ?? "Jugador eliminat"}</span>
+                  <span className="text-stone-500">
+                    {kill.players?.[0]?.player_code}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {!showConfirmation ? (
