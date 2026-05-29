@@ -7,7 +7,7 @@ export default function Home() {
 
         <div className="mb-8">
           <p className="text-red-700 tracking-[0.4em] text-sm font-semibold">
-            VOLUM IX
+            VOL.IX
           </p>
         </div>
 
