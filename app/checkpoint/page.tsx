@@ -13,6 +13,7 @@ type Checkpoint = {
   id: string;
   player_id: string;
   checkpoint_date: string;
+  created_at: string;
 };
 
 export default async function CheckpointPage() {
@@ -25,17 +26,26 @@ export default async function CheckpointPage() {
 
   const { data: checkpoints } = await supabase
     .from("checkpoints")
-    .select("id, player_id, checkpoint_date")
+    .select("id, player_id, checkpoint_date, created_at")
     .eq("checkpoint_date", today);
 
   const safePlayers = (players ?? []) as Player[];
   const safeCheckpoints = (checkpoints ?? []) as Checkpoint[];
 
   const confirmedPlayers = safeCheckpoints
-    .map((checkpoint) =>
-      safePlayers.find((player) => player.id === checkpoint.player_id)
-    )
-    .filter(Boolean) as Player[];
+    .map((checkpoint) => {
+      const player = safePlayers.find(
+        (player) => player.id === checkpoint.player_id
+      );
+
+      if (!player) return null;
+
+      return {
+        ...player,
+        confirmed_at: checkpoint.created_at,
+      };
+    })
+    .filter(Boolean) as (Player & { confirmed_at: string })[];
 
   return (
     <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10">
@@ -86,9 +96,18 @@ export default async function CheckpointPage() {
                   key={player.id}
                   className="flex justify-between border-b border-stone-900 pb-3"
                 >
-                  <span className="font-bold">
-                    {player.player_code}
-                  </span>
+                  <div className="flex justify-between gap-4">
+                    <p className="font-bold">
+                      {player.player_code}
+                    </p>
+
+                    <p className="text-stone-500 text-sm">
+                      {new Date(player.confirmed_at).toLocaleTimeString("ca-ES", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
