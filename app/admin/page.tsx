@@ -6,6 +6,8 @@ import AdminGame from "./AdminGame";
 import AdminChain from "./AdminChain";
 import AdminLogout from "./AdminLogout";
 
+export const dynamic = "force-dynamic";
+
 type Player = {
   id: string;
   name: string;
