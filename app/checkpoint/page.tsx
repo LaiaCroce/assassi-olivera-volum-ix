@@ -86,8 +86,7 @@ export default async function CheckpointPage() {
                   key={player.id}
                   className="flex justify-between border-b border-stone-900 pb-3"
                 >
-                  <span className="font-bold">{player.name}</span>
-                  <span className="text-stone-500">
+                  <span className="font-bold">
                     {player.player_code}
                   </span>
                 </div>
