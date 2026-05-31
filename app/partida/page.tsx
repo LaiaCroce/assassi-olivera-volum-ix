@@ -74,7 +74,7 @@ export default async function GameHistoryPage() {
               L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
             </p>
             <h1 className="mt-4 text-5xl font-black">
-              Historial de partida
+              Historial 
             </h1>
           </div>
 
@@ -120,7 +120,7 @@ export default async function GameHistoryPage() {
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <h2 className="text-2xl font-black mb-4">📜 Historial de morts</h2>
+          <h2 className="text-2xl font-black mb-4"> 💀 Morts</h2>
 
           {safeKills.length === 0 ? (
             <p className="text-stone-500">

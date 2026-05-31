@@ -4,6 +4,7 @@ import AdminPlayers from "./AdminPlayers";
 import AdminGuard from "./AdminGuard";
 import AdminGame from "./AdminGame";
 import AdminChain from "./AdminChain";
+import AdminLogout from "./AdminLogout";
 
 type Player = {
   id: string;
@@ -69,16 +70,19 @@ export default async function AdminPage() {
                 <h1 className="mt-4 text-5xl font-black">Panell Admin</h1>
               </div>
 
-              <AdminChain
-                players={
-                  players?.map((p) => ({
-                    id: p.id,
-                    name: p.name,
-                    player_code: p.player_code,
-                    current_target_id: p.current_target_id,
-                  })) ?? []
-                }
-              />
+              <div className="flex gap-2">
+                <AdminChain
+                  players={
+                    players?.map((p) => ({
+                      id: p.id,
+                      name: p.name,
+                      player_code: p.player_code,
+                      current_target_id: p.current_target_id,
+                    })) ?? []
+                  }
+                />
+                <AdminLogout />
+              </div>
             </div>
             <div className="mt-8 border border-red-900/70 rounded-3xl p-6 bg-black/40">
               <div className="flex items-center justify-between mb-6">

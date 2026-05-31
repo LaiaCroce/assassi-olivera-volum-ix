@@ -322,12 +322,24 @@ export default function PlayerPage() {
           </h1>
         </div>
 
-        <Link
-          href="/partida"
-          className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300 hover:border-red-700"
-        >
-          📜 Historial
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/partida"
+            className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300"
+          >
+            Historial del joc
+          </Link>
+
+          <button
+            onClick={() => {
+              localStorage.removeItem("player_id");
+              window.location.href = "/login";
+            }}
+            className="rounded-xl border border-red-900 px-3 py-2 text-xs text-red-500"
+          >
+            Sortir
+          </button>
+        </div>
       </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
