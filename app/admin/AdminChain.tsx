@@ -20,6 +20,21 @@ export default function AdminChain({ players }: Props) {
     return players.find((player) => player.id === targetId);
   }
 
+  const playersWithoutTarget = players.filter((p) => !p.current_target_id);
+
+  const targetIds = players
+    .map((p) => p.current_target_id)
+    .filter(Boolean);
+
+  const duplicatedTargets = targetIds.filter(
+    (id, index) => targetIds.indexOf(id) !== index
+  );
+
+  const chainIsValid =
+    players.length > 1 &&
+    playersWithoutTarget.length === 0 &&
+    duplicatedTargets.length === 0;
+
   return (
     <>
       <button
@@ -40,6 +55,27 @@ export default function AdminChain({ players }: Props) {
                 <p className="text-stone-500 mt-2">
                   Cada jugador i el seu objectiu actual
                 </p>
+                <div className="mt-4 rounded-xl border border-stone-800 p-4">
+                  {chainIsValid ? (
+                    <p className="text-green-500 font-bold">✅ Cadena correcta</p>
+                  ) : (
+                    <div className="space-y-2 text-sm">
+                      <p className="text-red-500 font-bold">❌ Cadena incompleta</p>
+
+                      {playersWithoutTarget.length > 0 && (
+                        <p className="text-stone-400">
+                          {playersWithoutTarget.length} jugador/s sense objectiu
+                        </p>
+                      )}
+
+                      {duplicatedTargets.length > 0 && (
+                        <p className="text-stone-400">
+                          Hi ha objectius duplicats
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button

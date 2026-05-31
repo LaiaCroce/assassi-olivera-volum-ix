@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [playerCode, setPlayerCode] = useState("");
   const [secretCode, setSecretCode] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -49,13 +51,27 @@ export default function LoginPage() {
             className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
           />
 
-          <input
-            value={secretCode}
-            onChange={(e) => setSecretCode(e.target.value)}
-            type="password"
-            placeholder="Codi secret"
-            className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-          />
+          <div className="relative">
+            <input
+              value={secretCode}
+              onChange={(e) => setSecretCode(e.target.value)}
+              type={showPassword ? "text" : "password"}
+              placeholder="Codi secret"
+              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 pr-12 outline-none focus:border-red-700"
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-red-500 transition"
+            >
+              {showPassword ? (
+                <EyeOff size={18} />
+              ) : (
+                <Eye size={18} />
+              )}
+            </button>
+          </div>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
