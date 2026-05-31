@@ -45,6 +45,7 @@ export default function PlayerPage() {
   const [pendingKill, setPendingKill] = useState<PendingKill | null>(null);
   const [killCount, setKillCount] = useState(0);
   const [killHistory, setKillHistory] = useState<KillHistoryItem[]>([]);
+  const [showTarget, setShowTarget] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -310,12 +311,26 @@ export default function PlayerPage() {
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">🎯 OBJECTIU ACTUAL</p>
-          <p className="text-5xl font-black mt-2">
-            {target ? target.name : "Encara no assignat"}
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-stone-500">🎯 OBJECTIU ACTUAL</p>
+
+            <button
+              onClick={() => setShowTarget(!showTarget)}
+              className="text-sm text-red-600 font-bold"
+            >
+              {showTarget ? "AMAGAR" : "VEURE"}
+            </button>
+          </div>
+
+          <p className="text-5xl font-black mt-4">
+            {showTarget
+              ? target
+                ? target.name
+                : "Encara no assignat"
+              : "••••••••"}
           </p>
 
-          {target && (
+          {target && showTarget && (
             <p className="mt-2 text-stone-500">{target.player_code}</p>
           )}
         </div>

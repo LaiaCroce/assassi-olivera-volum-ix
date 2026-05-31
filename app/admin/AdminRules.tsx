@@ -18,10 +18,15 @@ export default function AdminRules({ currentRule }: Props) {
 
       setMessage("");
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("rules")
       .update({ is_active: false })
       .eq("is_active", true);
+
+    if (updateError) {
+      setMessage(`Error update: ${updateError.message}`);
+      return;
+    }
 
     const { error } = await supabase.from("rules").insert({
       text: newRule.trim(),
@@ -29,7 +34,7 @@ export default function AdminRules({ currentRule }: Props) {
     });
 
     if (error) {
-      setMessage("No s'ha pogut actualitzar la consigna.");
+      setMessage(`Error insert: ${error.message}`);
       return;
     }
 
