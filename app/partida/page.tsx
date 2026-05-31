@@ -7,6 +7,7 @@ type Player = {
   id: string;
   name: string;
   player_code: string;
+  is_alive: boolean;
 };
 
 type Kill = {
@@ -20,7 +21,7 @@ type Kill = {
 export default async function GameHistoryPage() {
   const { data: players } = await supabase
     .from("players")
-    .select("id, name, player_code")
+    .select("id, name, player_code, is_alive")
     .order("player_code", { ascending: true });
 
   const { data: kills } = await supabase
@@ -30,6 +31,13 @@ export default async function GameHistoryPage() {
 
   const safePlayers = (players ?? []) as Player[];
   const safeKills = (kills ?? []) as Kill[];
+
+  const totalPlayers = safePlayers.length;
+  const aliveCount = safePlayers.filter((player) => player.is_alive).length;
+  const deadCount = totalPlayers - aliveCount;
+
+  const alivePercentage =
+    totalPlayers > 0 ? Math.round((aliveCount / totalPlayers) * 100) : 0;
 
   const confirmedKills = safeKills.filter(
     (kill) => kill.status === "confirmed"
@@ -86,6 +94,58 @@ export default async function GameHistoryPage() {
           >
             Tornar
           </Link>
+        </div>
+
+        <div className="border border-red-900/70 rounded-3xl p-6 bg-black/40">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-red-700 tracking-[0.25em] text-xs">
+                ESTAT DE LA PARTIDA
+              </p>
+              <h2 className="text-3xl font-black mt-2">Supervivents</h2>
+            </div>
+
+            <p className="text-5xl font-black text-red-600">
+              {aliveCount}/{totalPlayers}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-2xl border border-stone-800 p-4">
+              <p className="text-stone-500 text-sm">Totals</p>
+              <p className="text-3xl font-black">{totalPlayers}</p>
+            </div>
+
+            <div className="rounded-2xl border border-stone-800 p-4">
+              <p className="text-stone-500 text-sm">Vius</p>
+              <p className="text-3xl font-black">{aliveCount}</p>
+            </div>
+
+            <div className="rounded-2xl border border-stone-800 p-4">
+              <p className="text-stone-500 text-sm">Morts</p>
+              <p className="text-3xl font-black text-red-600">{deadCount}</p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="flex justify-between text-sm text-stone-400 mb-2">
+              <span>Supervivència</span>
+              <span>{alivePercentage}%</span>
+            </div>
+
+            <div className="h-4 rounded-full bg-stone-800 overflow-hidden">
+              <div
+                className="h-full bg-red-700"
+                style={{ width: `${alivePercentage}%` }}
+              />
+            </div>
+
+            <p className="mt-2 text-sm text-stone-500">
+              {totalPlayers === 0
+                ? "Encara no hi ha jugadors carregats."
+                : `${aliveCount} de ${totalPlayers} jugadors continuen vius.`}
+            </p>
+          </div>
         </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
