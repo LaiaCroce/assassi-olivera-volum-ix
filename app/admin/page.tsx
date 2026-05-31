@@ -2,6 +2,8 @@ import { supabase } from "@/lib/supabase";
 import AdminRules from "./AdminRules";
 import AdminPlayers from "./AdminPlayers";
 import AdminGuard from "./AdminGuard";
+import AdminGame from "./AdminGame";
+import AdminChain from "./AdminChain";
 
 type Player = {
   id: string;
@@ -59,10 +61,25 @@ export default async function AdminPage() {
       <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10">
         <section className="max-w-5xl mx-auto space-y-8">
           <div>
-            <p className="text-red-700 tracking-[0.25em] text-xs">
-              L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
-            </p>
-            <h1 className="mt-4 text-5xl font-black">Panell Admin</h1>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-red-700 tracking-[0.25em] text-xs">
+                  L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
+                </p>
+                <h1 className="mt-4 text-5xl font-black">Panell Admin</h1>
+              </div>
+
+              <AdminChain
+                players={
+                  players?.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    player_code: p.player_code,
+                    current_target_id: p.current_target_id,
+                  })) ?? []
+                }
+              />
+            </div>
             <div className="mt-8 border border-red-900/70 rounded-3xl p-6 bg-black/40">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -125,7 +142,15 @@ export default async function AdminPage() {
           </div>
   
           <AdminRules currentRule={activeRule?.text ?? ""} />
-
+          <AdminGame
+            players={
+              players?.map((p) => ({
+                id: p.id,
+                name: p.name,
+                is_alive: p.is_alive,
+              })) ?? []
+            }
+          />
           <AdminPlayers initialPlayers={players ?? []} />
 
 
