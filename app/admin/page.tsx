@@ -16,14 +16,8 @@ type Kill = {
   id: string;
   status: string;
   created_at: string;
-  killer: {
-    name: string;
-    player_code: string;
-  }[] | null;
-  victim: {
-    name: string;
-    player_code: string;
-  }[] | null;
+  killer_id: string;
+  victim_id: string;
 };
 
 export default async function AdminPage() {
@@ -34,19 +28,7 @@ export default async function AdminPage() {
 
   const { data: kills } = await supabase
     .from("kills")
-    .select(`
-      id,
-      status,
-      created_at,
-      killer:killer_id (
-        name,
-        player_code
-      ),
-      victim:victim_id (
-        name,
-        player_code
-      )
-    `)
+    .select("id, status, created_at, killer_id, victim_id")
     .order("created_at", { ascending: false });
 
     const { data: activeRule } = await supabase
@@ -60,6 +42,18 @@ export default async function AdminPage() {
   const deadCount = players?.filter((p) => !p.is_alive).length ?? 0;
   const pendingKills = kills?.filter((k) => k.status === "pending").length ?? 0;
 
+  const totalPlayers = players?.length ?? 0;
+  const paidCount = players?.filter((p) => p.has_paid).length ?? 0;
+  const unpaidCount = totalPlayers - paidCount;
+  const confirmedKills =
+    kills?.filter((k) => k.status === "confirmed").length ?? 0;
+
+  const alivePercentage =
+    totalPlayers > 0 ? Math.round((aliveCount / totalPlayers) * 100) : 0;
+
+  const paidPercentage =
+    totalPlayers > 0 ? Math.round((paidCount / totalPlayers) * 100) : 0;
+
   return (
     <AdminGuard>
       <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10">
@@ -69,31 +63,67 @@ export default async function AdminPage() {
               L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
             </p>
             <h1 className="mt-4 text-5xl font-black">Panell Admin</h1>
+            <div className="mt-8 border border-red-900/70 rounded-3xl p-6 bg-black/40">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <p className="text-red-700 tracking-[0.25em] text-xs">
+                    CONTROL DE PARTIDA
+                  </p>
+                  <h2 className="text-3xl font-black mt-2">Resum ràpid</h2>
+                </div>
+
+                <p className="text-5xl font-black text-red-600">
+                  {aliveCount}/{totalPlayers}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="rounded-2xl border border-stone-800 p-4">
+                  <p className="text-stone-500 text-sm">Totals</p>
+                  <p className="text-3xl font-black">{totalPlayers}</p>
+                </div>
+
+                <div className="rounded-2xl border border-stone-800 p-4">
+                  <p className="text-stone-500 text-sm">Vius</p>
+                  <p className="text-3xl font-black">{aliveCount}</p>
+                </div>
+
+                <div className="rounded-2xl border border-stone-800 p-4">
+                  <p className="text-stone-500 text-sm">Morts</p>
+                  <p className="text-3xl font-black text-red-600">{deadCount}</p>
+                </div>
+
+                <div className="rounded-2xl border border-stone-800 p-4">
+                  <p className="text-stone-500 text-sm">Pagats</p>
+                  <p className="text-3xl font-black">{paidCount}</p>
+                </div>
+
+                <div className="rounded-2xl border border-stone-800 p-4">
+                  <p className="text-stone-500 text-sm">No pagats</p>
+                  <p className="text-3xl font-black">{unpaidCount}</p>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <div className="flex justify-between text-sm text-stone-400 mb-2">
+                  <span>Supervivència</span>
+                  <span>{alivePercentage}%</span>
+                </div>
+
+                <div className="h-4 rounded-full bg-stone-800 overflow-hidden">
+                  <div
+                    className="h-full bg-red-700"
+                    style={{ width: `${alivePercentage}%` }}
+                  />
+                </div>
+
+                <p className="mt-2 text-sm text-stone-500">
+                  {aliveCount} de {totalPlayers} jugadors continuen vius.
+                </p>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="border border-stone-700 rounded-2xl p-6">
-              <p className="text-stone-500">🥷 VIUS</p>
-              <p className="text-4xl font-black mt-2 text-red-600">
-                {aliveCount}
-              </p>
-            </div>
-
-            <div className="border border-stone-700 rounded-2xl p-6">
-              <p className="text-stone-500">☠️ MORTS</p>
-              <p className="text-4xl font-black mt-2 text-red-600">
-                {deadCount}
-              </p>
-            </div>
-
-            <div className="border border-stone-700 rounded-2xl p-6">
-              <p className="text-stone-500">⚠️ PENDENTS</p>
-              <p className="text-4xl font-black mt-2 text-red-600">
-                {pendingKills}
-              </p>
-            </div>
-          </div>
-          
+  
           <AdminRules currentRule={activeRule?.text ?? ""} />
 
           <AdminPlayers initialPlayers={players ?? []} />
@@ -107,7 +137,11 @@ export default async function AdminPage() {
                 <p className="text-stone-500">Encara no hi ha eliminacions.</p>
               )}
 
-              {kills?.map((kill: Kill) => (
+              {kills?.map((kill: Kill) => {
+                const killer = players?.find((p: Player) => p.id === kill.killer_id);
+                const victim = players?.find((p: Player) => p.id === kill.victim_id);
+
+                return (
                 <div
                   key={kill.id}
                   className="flex justify-between gap-4 border-b border-stone-900 pb-3"
@@ -115,11 +149,11 @@ export default async function AdminPage() {
                   <div>
                     <p>
                       <span className="font-bold">
-                        {kill.killer?.[0]?.name ?? "?"}
+                        {killer?.name ?? "?"}
                       </span>{" "}
                       →{" "}
                       <span className="font-bold">
-                        {kill.victim?.[0]?.name ?? "?"}
+                        {victim?.name ?? "?"}
                       </span>
                     </p>
                     <p className="text-xs text-stone-500">
@@ -131,7 +165,8 @@ export default async function AdminPage() {
                     {kill.status}
                   </span>
                 </div>
-              ))}
+              );
+            })}
             </div>
           </div>
         </section>

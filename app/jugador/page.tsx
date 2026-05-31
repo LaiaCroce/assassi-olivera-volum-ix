@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 type Target = {
   id: string;
@@ -27,12 +28,8 @@ type PendingKill = {
 type KillHistoryItem = {
   id: string;
   victim_id: string;
-  players: 
-  |{
-    name: string;
-    player_code: string;
-    } []
-  | null;
+  victim_name: string;
+  victim_code: string;
 };
 
 export default function PlayerPage() {
@@ -89,12 +86,31 @@ export default function PlayerPage() {
 
       const { data: killHistoryData } = await supabase
         .from("kills")
-        .select("id, victim_id, players:victim_id (name, player_code)")
+        .select("id, victim_id")
         .eq("killer_id", playerData.id)
         .eq("status", "confirmed")
         .order("created_at", { ascending: false });
 
-      setKillHistory((killHistoryData as KillHistoryItem[]) ?? []);
+      const victimIds = killHistoryData?.map((kill) => kill.victim_id) ?? [];
+
+      const { data: victimsData } = await supabase
+        .from("players")
+        .select("id, name, player_code")
+        .in("id", victimIds);
+
+      const history =
+        killHistoryData?.map((kill) => {
+          const victim = victimsData?.find((p) => p.id === kill.victim_id);
+
+          return {
+            id: kill.id,
+            victim_id: kill.victim_id,
+            victim_name: victim?.name ?? "Jugador eliminat",
+            victim_code: victim?.player_code ?? "",
+          };
+        }) ?? [];
+
+      setKillHistory(history);
 
       if (playerData.current_target_id) {
         const { data: targetData } = await supabase
@@ -295,7 +311,8 @@ export default function PlayerPage() {
   return (
     <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10">
       <section className="max-w-md mx-auto space-y-6">
-        <div className="text-center">
+       <div className="flex items-start justify-between gap-4">
+        <div>
           <p className="text-red-700 tracking-[0.25em] text-xs">
             L&apos;ASSASSÍ DE L&apos;OLIVERA VOL.IX
           </p>
@@ -304,6 +321,14 @@ export default function PlayerPage() {
             Benvinguda, {player.name}
           </h1>
         </div>
+
+        <Link
+          href="/partida"
+          className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300 hover:border-red-700"
+        >
+          📜 Historial
+        </Link>
+      </div>
 
         <div className="border border-stone-700 rounded-2xl p-6">
           <p className="text-stone-500">🥷 ESTAT</p>
@@ -359,9 +384,9 @@ export default function PlayerPage() {
                   key={kill.id}
                   className="flex justify-between border-b border-stone-800 pb-2"
                 >
-                  <span>{kill.players?.[0]?.name ?? "Jugador eliminat"}</span>
+                  <span>{kill.victim_name}</span>
                   <span className="text-stone-500">
-                    {kill.players?.[0]?.player_code}
+                    {kill.victim_code}
                   </span>
                 </div>
               ))}
