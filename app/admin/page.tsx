@@ -139,7 +139,9 @@ export default async function AdminPage() {
                 </div>
 
                 <p className="mt-2 text-sm text-stone-500">
-                  {aliveCount} de {totalPlayers} jugadors continuen vius.
+                  {totalPlayers === 0
+                    ? "Encara no hi ha jugadors carregats."
+                    : `${aliveCount} de ${totalPlayers} jugadors continuen vius.`}
                 </p>
               </div>
             </div>

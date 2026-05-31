@@ -18,6 +18,7 @@ type Props = {
 
 export default function AdminPlayers({ initialPlayers }: Props) {
     const [players, setPlayers] = useState(initialPlayers);
+    const [search, setSearch] = useState("");
     const [confirmAction, setConfirmAction] = useState<{
         player: Player;
         type: "paid" | "alive";
@@ -56,10 +57,21 @@ export default function AdminPlayers({ initialPlayers }: Props) {
         )
     );
     }
+    const filteredPlayers = players.filter((player) => {
+    const text = `${player.name} ${player.player_code}`.toLowerCase();
+    return text.includes(search.toLowerCase());
+    });
 
     return (
         <div className="border border-stone-700 rounded-2xl p-6">
         <h2 className="text-2xl font-black mb-4">Jugadors</h2>
+
+        <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Cercar jugador..."
+            className="mb-4 w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+        />
 
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -75,7 +87,7 @@ export default function AdminPlayers({ initialPlayers }: Props) {
             </thead>
 
             <tbody>
-                {players.map((player) => {
+                {filteredPlayers.map((player) => {
                 const target = players.find(
                     (p) => p.id === player.current_target_id
                 );

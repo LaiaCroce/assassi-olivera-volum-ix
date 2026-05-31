@@ -44,6 +44,12 @@ export default function AdminLoginPage() {
         </h1>
 
         <form onSubmit={handleLogin} className="mt-8 space-y-4">
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Usuari"
+            className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+          />
           <div className="relative">
             <input
               value={password}
@@ -65,14 +71,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </div>
-
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            placeholder="Contrasenya"
-            className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-          />
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 

@@ -333,7 +333,7 @@ export default function PlayerPage() {
           <button
             onClick={() => {
               localStorage.removeItem("player_id");
-              window.location.href = "/login";
+              window.location.href = "/ ";
             }}
             className="rounded-xl border border-red-900 px-3 py-2 text-xs text-red-500"
           >
@@ -363,12 +363,18 @@ export default function PlayerPage() {
             {showTarget
               ? target
                 ? target.name
-                : "Encara no assignat"
+                : "La partida encara no ha començat"
               : "••••••••"}
           </p>
 
           {target && showTarget && (
             <p className="mt-2 text-stone-500">{target.player_code}</p>
+          )}
+
+          {!target && showTarget && (
+            <p className="mt-2 text-stone-500">
+              L&apos;organització assignarà els objectius abans de començar.
+            </p>
           )}
         </div>
 
