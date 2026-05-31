@@ -323,6 +323,7 @@ export default function PlayerPage() {
         </div>
 
         <div className="flex gap-2">
+          
           <Link
             href="/partida"
             className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300"
@@ -330,6 +331,13 @@ export default function PlayerPage() {
             Historial del joc
           </Link>
 
+          <Link
+            href="/checkpoint"
+            className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300"
+          >
+            Checkpoint
+          </Link>
+          
           <button
             onClick={() => {
               localStorage.removeItem("player_id");

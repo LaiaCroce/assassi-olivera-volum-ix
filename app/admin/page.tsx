@@ -5,6 +5,7 @@ import AdminGuard from "./AdminGuard";
 import AdminGame from "./AdminGame";
 import AdminChain from "./AdminChain";
 import AdminLogout from "./AdminLogout";
+import AdminCheckpoint from "./AdminChcekpoint";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,13 @@ export default async function AdminPage() {
 
   const paidPercentage =
     totalPlayers > 0 ? Math.round((paidCount / totalPlayers) * 100) : 0;
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: checkpoints } = await supabase
+    .from("checkpoints")
+    .select("id, player_id, checkpoint_date")
+    .eq("checkpoint_date", today);  
 
   return (
     <AdminGuard>
@@ -158,6 +166,17 @@ export default async function AdminPage() {
                 is_alive: p.is_alive,
               })) ?? []
             }
+          />
+          <AdminCheckpoint
+            players={
+              players?.map((p) => ({
+                id: p.id,
+                name: p.name,
+                player_code: p.player_code,
+                is_alive: p.is_alive,
+              })) ?? []
+            }
+            initialCheckpoints={checkpoints ?? []}
           />
           <AdminPlayers initialPlayers={players ?? []} />
 
