@@ -67,6 +67,22 @@ export default async function AdminPage() {
     .select("id, player_id, checkpoint_date")
     .eq("checkpoint_date", today);  
 
+  const ranking = (players ?? [])
+    .map((player) => {
+      const count =
+        kills?.filter(
+          (kill) =>
+            kill.status === "confirmed" && kill.killer_id === player.id
+        ).length ?? 0;
+
+      return {
+        ...player,
+        kills: count,
+      };
+    })
+    .filter((player) => player.kills > 0)
+    .sort((a, b) => b.kills - a.kills);
+
   return (
     <AdminGuard>
       <main className="min-h-screen bg-[#090909] text-stone-200 px-6 py-10">
@@ -156,7 +172,39 @@ export default async function AdminPage() {
               </div>
             </div>
           </div>
-  
+          
+          <div className="border border-stone-700 rounded-2xl p-6">
+            <h2 className="text-2xl font-black mb-4">🏆 Rànquing</h2>
+
+            {ranking.length === 0 ? (
+              <p className="text-stone-500">
+                Encara no hi ha cap eliminació confirmada.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {ranking.map((player, index) => (
+                  <div
+                    key={player.id}
+                    className="flex items-center justify-between border-b border-stone-900 pb-3"
+                  >
+                    <div>
+                      <p className="font-bold">
+                        {index + 1}. {player.name}
+                      </p>
+                      <p className="text-xs text-stone-500">
+                        {player.player_code}
+                      </p>
+                    </div>
+
+                    <p className="text-red-600 font-black text-2xl">
+                      ⚔️ {player.kills}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <AdminRules currentRule={activeRule?.text ?? ""} />
           <AdminGame
             players={
