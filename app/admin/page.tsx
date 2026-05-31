@@ -173,6 +173,22 @@ export default async function AdminPage() {
             </div>
           </div>
           
+          <AdminRules currentRule={activeRule?.text ?? ""} />
+
+          <AdminCheckpoint
+            players={
+              players?.map((p) => ({
+                id: p.id,
+                name: p.name,
+                player_code: p.player_code,
+                is_alive: p.is_alive,
+              })) ?? []
+            }
+            initialCheckpoints={checkpoints ?? []}
+          />
+
+          <AdminPlayers initialPlayers={players ?? []} />
+
           <div className="border border-stone-700 rounded-2xl p-6">
             <h2 className="text-2xl font-black mb-4">🏆 Rànquing</h2>
 
@@ -205,30 +221,6 @@ export default async function AdminPage() {
             )}
           </div>
 
-          <AdminRules currentRule={activeRule?.text ?? ""} />
-          <AdminGame
-            players={
-              players?.map((p) => ({
-                id: p.id,
-                name: p.name,
-                is_alive: p.is_alive,
-              })) ?? []
-            }
-          />
-          <AdminCheckpoint
-            players={
-              players?.map((p) => ({
-                id: p.id,
-                name: p.name,
-                player_code: p.player_code,
-                is_alive: p.is_alive,
-              })) ?? []
-            }
-            initialCheckpoints={checkpoints ?? []}
-          />
-          <AdminPlayers initialPlayers={players ?? []} />
-
-
           <div className="border border-stone-700 rounded-2xl p-6">
             <h2 className="text-2xl font-black mb-4">Eliminacions</h2>
 
@@ -242,33 +234,43 @@ export default async function AdminPage() {
                 const victim = players?.find((p: Player) => p.id === kill.victim_id);
 
                 return (
-                <div
-                  key={kill.id}
-                  className="flex justify-between gap-4 border-b border-stone-900 pb-3"
-                >
-                  <div>
-                    <p>
-                      <span className="font-bold">
-                        {killer?.name ?? "?"}
-                      </span>{" "}
-                      →{" "}
-                      <span className="font-bold">
-                        {victim?.name ?? "?"}
-                      </span>
-                    </p>
-                    <p className="text-xs text-stone-500">
-                      {new Date(kill.created_at).toLocaleString("ca-ES")}
-                    </p>
-                  </div>
+                  <div
+                    key={kill.id}
+                    className="flex justify-between gap-4 border-b border-stone-900 pb-3"
+                  >
+                    <div>
+                      <p>
+                        <span className="font-bold">
+                          {killer?.name ?? "?"}
+                        </span>{" "}
+                        →{" "}
+                        <span className="font-bold">
+                          {victim?.name ?? "?"}
+                        </span>
+                      </p>
+                      <p className="text-xs text-stone-500">
+                        {new Date(kill.created_at).toLocaleString("ca-ES")}
+                      </p>
+                    </div>
 
-                  <span className="text-red-600 font-bold">
-                    {kill.status}
-                  </span>
-                </div>
-              );
-            })}
+                    <span className="text-red-600 font-bold">
+                      {kill.status}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
+
+          <AdminGame
+            players={
+              players?.map((p) => ({
+                id: p.id,
+                name: p.name,
+                is_alive: p.is_alive,
+              })) ?? []
+            }
+          />
         </section>
       </main>
     </AdminGuard>

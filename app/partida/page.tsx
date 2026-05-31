@@ -105,9 +105,6 @@ export default async function GameHistoryPage() {
                   <div>
                     <p className="font-bold">
                       <span className="mr-2">{getMedal(index)}</span>
-                      {player.name}
-                    </p>
-                    <p className="text-xs text-stone-500">
                       {player.player_code}
                     </p>
                   </div>
@@ -142,11 +139,13 @@ export default async function GameHistoryPage() {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-lg font-black">
-                          {killer?.name ?? "?"}
+                          {killer?.player_code ?? "?"}
                         </p>
+
                         <p className="text-stone-500 text-sm">↓</p>
+
                         <p className="text-lg font-black text-red-600">
-                          {victim?.name ?? "?"}
+                          {victim?.player_code ?? "?"}
                         </p>
                       </div>
 
