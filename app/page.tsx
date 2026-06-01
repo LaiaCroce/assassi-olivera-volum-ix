@@ -77,9 +77,11 @@ export default function Home() {
               <span className="text-stone-500 text-sm">LOGO 2</span>
             </div>
 
-            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
-              <span className="text-stone-500 text-sm">LOGO 3</span>
-            </div>
+            <img
+              src="/collaboradors/Captura de Pantalla 2024-06-17 a les 18.44.28.png"
+              alt="El Rebost de Casa"
+              className="max-h-16 max-w-full object-contain opacity-90"
+            /> 
 
             <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
               <span className="text-stone-500 text-sm">LOGO 4</span>
