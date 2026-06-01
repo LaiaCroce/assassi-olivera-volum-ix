@@ -78,7 +78,7 @@ export default function Home() {
             </div>
 
             <img
-              src="/collaboradors/Captura de Pantalla 2024-06-17 a les 18.44.28.png"
+              src="/collaboradors/el-rebost-de-casa.png"
               alt="El Rebost de Casa"
               className="max-h-16 max-w-full object-contain opacity-90"
             /> 
