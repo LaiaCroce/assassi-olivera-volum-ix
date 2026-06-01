@@ -76,13 +76,15 @@ export default function Home() {
             <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
               <span className="text-stone-500 text-sm">LOGO 2</span>
             </div>
-
-            <img
+            
+            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
+              <img
               src="/collaboradors/el_rebost_de_casa.png"
               alt="El Rebost de Casa"
               className="max-h-16 max-w-full object-contain opacity-90"
-            /> 
-
+              /> 
+            </div>
+            
             <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
               <span className="text-stone-500 text-sm">LOGO 4</span>
             </div>
