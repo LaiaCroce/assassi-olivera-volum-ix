@@ -205,7 +205,7 @@ export default async function GameHistoryPage() {
                         <p className="text-stone-500 text-sm">↓</p>
 
                         <p className="text-lg font-black text-red-600">
-                          {victim?.player_code ?? "?"}
+                          {victim?.name ?? "?"}
                         </p>
                       </div>
 
