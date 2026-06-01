@@ -56,6 +56,36 @@ export default function Home() {
           </Link>
 
         </div>
+
+        <div className="mt-14 border-t border-stone-800 pt-8">
+          <p className="text-stone-500 tracking-[0.25em] text-xs">
+            COL·LABORADORS
+          </p>
+
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+            {/* <img
+              src="/collaboradors/pebre.png"
+              alt="El Pebre"
+              className="max-h-16 max-w-full object-contain opacity-90"
+            /> */}
+            
+            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
+              <span className="text-stone-500 text-sm">LOGO 1</span>
+            </div>
+
+            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
+              <span className="text-stone-500 text-sm">LOGO 2</span>
+            </div>
+
+            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
+              <span className="text-stone-500 text-sm">LOGO 3</span>
+            </div>
+
+            <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
+              <span className="text-stone-500 text-sm">LOGO 4</span>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   );
