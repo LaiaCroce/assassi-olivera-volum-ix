@@ -94,6 +94,15 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <footer className="mt-16 pt-8 border-t border-stone-800 text-center">
+          <p className="text-sm text-stone-500">
+            Una iniciativa creada per al poble d&apos;Olesa de Montserrat
+          </p>
+
+          <p className="mt-2 text-xs text-stone-600">
+            Web desenvolupada per Laia Croce
+          </p>
+        </footer>
       </section>
     </main>
   );
