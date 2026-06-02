@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,7 +35,17 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#090909] text-stone-200 flex items-center justify-center px-6">
+    <main className="min-h-screen bg-[#090909] text-stone-200 px-6">
+      <div className="max-w-5xl mx-auto pt-6 flex justify-end">
+        <Link
+          href="/"
+          className="rounded-xl border border-stone-700 px-4 py-2 text-sm hover:border-red-700 transition"
+        >
+          ← Inici
+        </Link>
+      </div>
+
+      <div className="flex items-center justify-center min-h-[85vh]">
       <section className="max-w-md w-full border border-stone-700 rounded-2xl p-8">
         <h1 className="text-3xl font-black text-center">ACCÉS NINJA</h1>
 
@@ -83,6 +94,7 @@ export default function LoginPage() {
           </button>
         </form>
       </section>
+      </div>
     </main>
   );
 }
