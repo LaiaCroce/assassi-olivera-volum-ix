@@ -78,7 +78,11 @@ export default function Home() {
             </div>
 
             <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
-              <span className="text-stone-500 text-sm">LOGO 2</span>
+              <img
+              src="/collaboradors/el_pebre.png"
+              alt="El Pebre"
+              className="max-h-16 max-w-full object-contain opacity-90"
+              /> 
             </div>
             
             <div className="rounded-2xl border border-stone-800 bg-black/30 p-4 h-24 flex items-center justify-center">
