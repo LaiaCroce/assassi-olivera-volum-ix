@@ -20,7 +20,7 @@ export default function LoginPage() {
     const { data, error } = await supabase
       .from("players")
       .select("*")
-      .eq("player_code", playerCode.trim().toUpperCase())
+      .eq("player_code", playerCode.trim())
       .eq("secret_code", secretCode.trim())
       .eq("is_active", true)
       .maybeSingle();
@@ -58,7 +58,7 @@ export default function LoginPage() {
             value={playerCode}
             onChange={(e) => setPlayerCode(e.target.value)}
             type="text"
-            placeholder="NINJA001"
+            placeholder="Nom ninja"
             className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
           />
 
