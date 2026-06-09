@@ -318,7 +318,7 @@ export default function PlayerPage() {
           </p>
 
           <h1 className="mt-4 text-4xl font-black">
-            Benvinguda, {player.name}
+            Hola Ninja, {player.name}
           </h1>
         </div>
 
