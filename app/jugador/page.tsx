@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 
 type Target = {
   id: string;
@@ -49,6 +50,9 @@ export default function PlayerPage() {
   const [passwordMessage, setPasswordMessage] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
   const [showChangeModal, setShowChangeModal] = useState(false);
+  const [showCurrentSecret, setShowCurrentSecret] = useState(false);
+  const [showNewSecret, setShowNewSecret] = useState(false);
+  const [showConfirmSecret, setShowConfirmSecret] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -552,29 +556,59 @@ export default function PlayerPage() {
                 </div>
 
                 <form onSubmit={changeSecret} className="mt-4 space-y-3">
-                  <input
-                    value={currentSecret}
-                    onChange={(e) => setCurrentSecret(e.target.value)}
-                    type="password"
-                    placeholder="Codi actual"
-                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-                  />
+                  <div className="relative">
+                    <input
+                      value={currentSecret}
+                      onChange={(e) => setCurrentSecret(e.target.value)}
+                      type={showCurrentSecret ? "text" : "password"}
+                      placeholder="Codi actual"
+                      className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 pr-12 outline-none focus:border-red-700"
+                    />
 
-                  <input
-                    value={newSecret}
-                    onChange={(e) => setNewSecret(e.target.value)}
-                    type="password"
-                    placeholder="Nou codi secret"
-                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-                  />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentSecret(!showCurrentSecret)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400"
+                    >
+                      {showCurrentSecret ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
 
-                  <input
-                    value={confirmSecret}
-                    onChange={(e) => setConfirmSecret(e.target.value)}
-                    type="password"
-                    placeholder="Confirma nou codi"
-                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-                  />
+                  <div className="relative">
+                    <input
+                      value={newSecret}
+                      onChange={(e) => setNewSecret(e.target.value)}
+                      type={showNewSecret ? "text" : "password"}
+                      placeholder="Nou codi secret"
+                      className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 pr-12 outline-none focus:border-red-700"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowNewSecret(!showNewSecret)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400"
+                    >
+                      {showNewSecret ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      value={confirmSecret}
+                      onChange={(e) => setConfirmSecret(e.target.value)}
+                      type={showConfirmSecret ? "text" : "password"}
+                      placeholder="Confirma nou codi"
+                      className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 pr-12 outline-none focus:border-red-700"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmSecret(!showConfirmSecret)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400"
+                    >
+                      {showConfirmSecret ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
 
                   {passwordMessage && (
                     <p className="text-center text-sm text-stone-400">{passwordMessage}</p>
