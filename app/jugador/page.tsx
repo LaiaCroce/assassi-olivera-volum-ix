@@ -48,6 +48,7 @@ export default function PlayerPage() {
   const [confirmSecret, setConfirmSecret] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+  const [showChangeModal, setShowChangeModal] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -286,6 +287,7 @@ export default function PlayerPage() {
     setNewSecret("");
     setConfirmSecret("");
     setChangingPassword(false);
+    setShowChangeModal(false);
   }
 
   if (!player) {
@@ -382,49 +384,15 @@ export default function PlayerPage() {
           </h1>
         </div>
 
-        <div className="border border-stone-700 rounded-2xl p-6">
-          <p className="text-stone-500">🔐 Canviar codi secret</p>
-
-          <form onSubmit={changeSecret} className="mt-4 space-y-3">
-            <input
-              value={currentSecret}
-              onChange={(e) => setCurrentSecret(e.target.value)}
-              type="password"
-              placeholder="Codi actual"
-              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-            />
-
-            <input
-              value={newSecret}
-              onChange={(e) => setNewSecret(e.target.value)}
-              type="password"
-              placeholder="Nou codi secret"
-              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-            />
-
-            <input
-              value={confirmSecret}
-              onChange={(e) => setConfirmSecret(e.target.value)}
-              type="password"
-              placeholder="Confirma nou codi"
-              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
-            />
-
-            {passwordMessage && (
-              <p className="text-center text-sm text-stone-400">{passwordMessage}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={changingPassword}
-              className="w-full rounded-xl bg-red-950 border border-red-900 px-6 py-3 font-bold disabled:opacity-40"
-            >
-              {changingPassword ? "CANVIANT..." : "CANVIAR CODI"}
-            </button>
-          </form>
-        </div>
+        {/* change code button moved to header; modal contains the form */}
 
         <div className="flex gap-2">
+          <button
+            onClick={() => setShowChangeModal(true)}
+            className="rounded-xl border border-stone-700 px-3 py-2 text-xs text-stone-300"
+          >
+            Canvi de codi
+          </button>
           
           <Link
             href="/partida"
@@ -563,6 +531,76 @@ export default function PlayerPage() {
 
         {message && (
           <p className="text-center text-sm text-stone-400">{message}</p>
+        )}
+        {showChangeModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setShowChangeModal(false)}
+            />
+
+            <div className="relative z-10 w-full max-w-md mx-4">
+              <div className="bg-[#0b0b0b] border border-stone-700 rounded-2xl p-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-bold">Canvi de codi secret</h2>
+                  <button
+                    onClick={() => setShowChangeModal(false)}
+                    className="text-stone-400"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <form onSubmit={changeSecret} className="mt-4 space-y-3">
+                  <input
+                    value={currentSecret}
+                    onChange={(e) => setCurrentSecret(e.target.value)}
+                    type="password"
+                    placeholder="Codi actual"
+                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+                  />
+
+                  <input
+                    value={newSecret}
+                    onChange={(e) => setNewSecret(e.target.value)}
+                    type="password"
+                    placeholder="Nou codi secret"
+                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+                  />
+
+                  <input
+                    value={confirmSecret}
+                    onChange={(e) => setConfirmSecret(e.target.value)}
+                    type="password"
+                    placeholder="Confirma nou codi"
+                    className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+                  />
+
+                  {passwordMessage && (
+                    <p className="text-center text-sm text-stone-400">{passwordMessage}</p>
+                  )}
+
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowChangeModal(false)}
+                      className="flex-1 rounded-xl border border-stone-700 py-3"
+                    >
+                      Cancel·lar
+                    </button>
+
+                    <button
+                      type="submit"
+                      disabled={changingPassword}
+                      className="flex-1 rounded-xl bg-red-950 border border-red-900 py-3 font-bold disabled:opacity-40"
+                    >
+                      {changingPassword ? "CANVIANT..." : "CANVIAR CODI"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         )}
       </section>
     </main>
