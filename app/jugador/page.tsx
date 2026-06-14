@@ -43,6 +43,11 @@ export default function PlayerPage() {
   const [killCount, setKillCount] = useState(0);
   const [killHistory, setKillHistory] = useState<KillHistoryItem[]>([]);
   const [showTarget, setShowTarget] = useState(false);
+  const [currentSecret, setCurrentSecret] = useState("");
+  const [newSecret, setNewSecret] = useState("");
+  const [confirmSecret, setConfirmSecret] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -228,6 +233,61 @@ export default function PlayerPage() {
     setMessage("Has rebutjat l'eliminació. Els admins ho revisaran.");
   }
 
+  async function changeSecret(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!player) return;
+
+    setPasswordMessage("");
+
+    if (!currentSecret || !newSecret || !confirmSecret) {
+      setPasswordMessage("Completa tots els camps.");
+      return;
+    }
+
+    if (newSecret !== confirmSecret) {
+      setPasswordMessage("El nou codi i la confirmació no coincideixen.");
+      return;
+    }
+
+    setChangingPassword(true);
+
+    const { data: playerData, error: selectError } = await supabase
+      .from("players")
+      .select("secret_code")
+      .eq("id", player.id)
+      .maybeSingle();
+
+    if (selectError || !playerData) {
+      setPasswordMessage("No s'ha pogut verificar el jugador.");
+      setChangingPassword(false);
+      return;
+    }
+
+    if (playerData.secret_code !== currentSecret) {
+      setPasswordMessage("Codi actual incorrecte.");
+      setChangingPassword(false);
+      return;
+    }
+
+    const { error: updateError } = await supabase
+      .from("players")
+      .update({ secret_code: newSecret })
+      .eq("id", player.id);
+
+    if (updateError) {
+      setPasswordMessage("No s'ha pogut actualitzar el codi.");
+      setChangingPassword(false);
+      return;
+    }
+
+    setPasswordMessage("Codi actualitzat correctament.");
+    setCurrentSecret("");
+    setNewSecret("");
+    setConfirmSecret("");
+    setChangingPassword(false);
+  }
+
   if (!player) {
     return (
       <main className="min-h-screen bg-black text-stone-200 flex items-center justify-center">
@@ -320,6 +380,48 @@ export default function PlayerPage() {
           <h1 className="mt-4 text-4xl font-black">
             Hola Ninja, {player.name}
           </h1>
+        </div>
+
+        <div className="border border-stone-700 rounded-2xl p-6">
+          <p className="text-stone-500">🔐 Canviar codi secret</p>
+
+          <form onSubmit={changeSecret} className="mt-4 space-y-3">
+            <input
+              value={currentSecret}
+              onChange={(e) => setCurrentSecret(e.target.value)}
+              type="password"
+              placeholder="Codi actual"
+              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+            />
+
+            <input
+              value={newSecret}
+              onChange={(e) => setNewSecret(e.target.value)}
+              type="password"
+              placeholder="Nou codi secret"
+              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+            />
+
+            <input
+              value={confirmSecret}
+              onChange={(e) => setConfirmSecret(e.target.value)}
+              type="password"
+              placeholder="Confirma nou codi"
+              className="w-full rounded-xl bg-stone-900 border border-stone-700 px-4 py-3 outline-none focus:border-red-700"
+            />
+
+            {passwordMessage && (
+              <p className="text-center text-sm text-stone-400">{passwordMessage}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={changingPassword}
+              className="w-full rounded-xl bg-red-950 border border-red-900 px-6 py-3 font-bold disabled:opacity-40"
+            >
+              {changingPassword ? "CANVIANT..." : "CANVIAR CODI"}
+            </button>
+          </form>
         </div>
 
         <div className="flex gap-2">
