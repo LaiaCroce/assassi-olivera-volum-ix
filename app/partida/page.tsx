@@ -215,7 +215,11 @@ export default async function GameHistoryPage() {
                     </div>
 
                     <p className="text-xs text-stone-500 mt-4">
-                      {new Date(kill.created_at).toLocaleString("ca-ES")}
+                      {new Date(kill.created_at).toLocaleString("ca-ES", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        timeZone: "Europe/Madrid",
+                      })}
                     </p>
                   </div>
                 );
