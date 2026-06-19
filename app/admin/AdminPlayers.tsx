@@ -44,6 +44,61 @@ export default function AdminPlayers({ initialPlayers }: Props) {
     async function toggleAlive(player: Player) {
         const newValue = !player.is_alive;
 
+        // If admin is killing the player, reassign their assassin's target
+        // to the victim's target without recording a kill.
+        if (!newValue) {
+            try {
+                const { data: victimData, error: victimErr } = await supabase
+                    .from("players")
+                    .select("current_target_id")
+                    .eq("id", player.id)
+                    .maybeSingle();
+
+                if (victimErr) return;
+
+                const victimTargetId = victimData?.current_target_id ?? null;
+
+                const { data: assassinData, error: assassinErr } = await supabase
+                    .from("players")
+                    .select("id")
+                    .eq("current_target_id", player.id)
+                    .maybeSingle();
+
+                if (assassinErr) return;
+
+                const assassinId = assassinData?.id ?? null;
+
+                if (assassinId) {
+                    const { error: updateAssassinError } = await supabase
+                        .from("players")
+                        .update({ current_target_id: victimTargetId })
+                        .eq("id", assassinId);
+
+                    if (updateAssassinError) return;
+                }
+
+                const { error: updateVictimError } = await supabase
+                    .from("players")
+                    .update({ is_alive: false, current_target_id: null })
+                    .eq("id", player.id);
+
+                if (updateVictimError) return;
+
+                setPlayers((prev) =>
+                    prev.map((p) => {
+                        if (p.id === player.id) return { ...p, is_alive: false, current_target_id: null };
+                        if (assassinId && p.id === assassinId) return { ...p, current_target_id: victimTargetId };
+                        return p;
+                    })
+                );
+
+                return;
+            } catch (err) {
+                return;
+            }
+        }
+
+        // revive or simple toggle
         const { error } = await supabase
             .from("players")
             .update({ is_alive: newValue })
@@ -51,11 +106,11 @@ export default function AdminPlayers({ initialPlayers }: Props) {
 
         if (error) return;
 
-    setPlayers((prev) =>
-        prev.map((p) =>
-            p.id === player.id ? { ...p, is_alive: newValue } : p
-        )
-    );
+        setPlayers((prev) =>
+            prev.map((p) =>
+                p.id === player.id ? { ...p, is_alive: newValue } : p
+            )
+        );
     }
     const filteredPlayers = players.filter((player) => {
     const text = `${player.name} ${player.player_code}`.toLowerCase();
