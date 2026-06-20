@@ -190,7 +190,7 @@ export default async function GameHistoryPage() {
               {safeKills.map((kill) => {
                 const killer = getPlayer(kill.killer_id);
                 const victim = getPlayer(kill.victim_id);
-                const isAdminKill = kill.killer_id === "admin";
+                const isAdminKill = kill.killer_id === "organitzadors" || kill.killer_id === "admin";
 
                 return (
                   <div
@@ -200,7 +200,7 @@ export default async function GameHistoryPage() {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <p className="text-lg font-black">
-                          {isAdminKill ? "Admins" : killer?.player_code ?? "?"}
+                          {isAdminKill ? "Organitzadors" : killer?.player_code ?? "?"}
                         </p>
 
                         <p className="text-stone-500 text-sm">↓</p>
@@ -210,7 +210,7 @@ export default async function GameHistoryPage() {
                         </p>
 
                         {isAdminKill && (
-                          <p className="text-xs text-stone-500 mt-2">Mort pels admins</p>
+                          <p className="text-xs text-stone-500 mt-2">Mort pels organitzadors</p>
                         )}
                       </div>
 
