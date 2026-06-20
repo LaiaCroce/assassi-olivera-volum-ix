@@ -58,24 +58,13 @@ export default function AdminPlayers({ initialPlayers }: Props) {
 
                 const victimTargetId = victimData?.current_target_id ?? null;
 
-                const { data: assassinData, error: assassinErr } = await supabase
+                // Update ALL players that had the victim as target (handles multiple assassins)
+                const { error: updateAssassinsError } = await supabase
                     .from("players")
-                    .select("id")
-                    .eq("current_target_id", player.id)
-                    .maybeSingle();
+                    .update({ current_target_id: victimTargetId })
+                    .eq("current_target_id", player.id);
 
-                if (assassinErr) return;
-
-                const assassinId = assassinData?.id ?? null;
-
-                if (assassinId) {
-                    const { error: updateAssassinError } = await supabase
-                        .from("players")
-                        .update({ current_target_id: victimTargetId })
-                        .eq("id", assassinId);
-
-                    if (updateAssassinError) return;
-                }
+                if (updateAssassinsError) return;
 
                 const { error: updateVictimError } = await supabase
                     .from("players")
@@ -87,7 +76,7 @@ export default function AdminPlayers({ initialPlayers }: Props) {
                 setPlayers((prev) =>
                     prev.map((p) => {
                         if (p.id === player.id) return { ...p, is_alive: false, current_target_id: null };
-                        if (assassinId && p.id === assassinId) return { ...p, current_target_id: victimTargetId };
+                        if (p.current_target_id === player.id) return { ...p, current_target_id: victimTargetId };
                         return p;
                     })
                 );
