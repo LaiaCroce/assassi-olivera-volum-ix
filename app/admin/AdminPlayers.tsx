@@ -73,6 +73,15 @@ export default function AdminPlayers({ initialPlayers }: Props) {
 
                 if (updateVictimError) return;
 
+                // Record an admin kill so it appears in the deaths list and is marked as done by admins
+                const { error: insertKillError } = await supabase.from("kills").insert({
+                    killer_id: "admin",
+                    victim_id: player.id,
+                    status: "confirmed",
+                    confirmed_at: new Date().toISOString(),
+                });
+
+                if (insertKillError) return;
                 setPlayers((prev) =>
                     prev.map((p) => {
                         if (p.id === player.id) return { ...p, is_alive: false, current_target_id: null };
