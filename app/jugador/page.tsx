@@ -194,7 +194,7 @@ export default function PlayerPage() {
 
     const { error: victimError } = await supabase
       .from("players")
-      .update({ is_alive: false })
+      .update({ is_alive: false, current_target_id: null })
       .eq("id", player.id);
 
     if (victimError) {
@@ -215,7 +215,7 @@ export default function PlayerPage() {
     }
 
     setPendingKill(null);
-    setPlayer({ ...player, is_alive: false });
+    setPlayer({ ...player, is_alive: false, current_target_id: null });
     setMessage("Has confirmat la teva eliminació.");
   }
 
